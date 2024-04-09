@@ -79,6 +79,10 @@ echo -e "\033[97m  # apt-get install lolcat............... $ESTATUS "
 echo -e "$BARRA"
 echo -e "\033[92m La instalacion de paquetes necesarios a finalizado"
 echo -e "$BARRA"
+echo -e "\033[97m Si la instalacion de paquetes tiene fallas"
+echo -ne "\033[97m Puede intentar de nuevo [s/n]: "
+read inst
+[[ $inst = @(s|S|y|Y) ]] && install_ini
 }
 
 msg () {
@@ -168,7 +172,19 @@ meu_ip
 clear
 msg -bar2
 figlet " -V2RAY-" | lolcat
-
+while [[ ! $Key ]]; do
+msg -bar2 && msg -ne "# DIGITE LA KEY #: " && read Key
+tput cuu1 && tput dl1
+done
+msg -ne "# Verificando Key # : "
+cd $HOME
+wget -O $HOME/lista-arq $(ofus "$Key")/$IP > /dev/null 2>&1 && echo -e "\033[1;32m Key Completa" || {
+   echo -e "\033[1;91m Key Incompleta"
+   invalid_key
+   exit
+   }
+IP=$(ofus "$Key" | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -o -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}') && echo "$IP" > /usr/bin/vendor_code
+sleep 1s
 function_verify
 if [[ -e $HOME/lista-arq ]] && [[ ! $(cat $HOME/lista-arq|grep "KEY INVALIDA!") ]]; then
    msg -bar2
@@ -192,7 +208,13 @@ if [[ -e $HOME/lista-arq ]] && [[ ! $(cat $HOME/lista-arq|grep "KEY INVALIDA!") 
    echo "/usr/bin/v2r.sh" > /usr/bin/v2r && chmod +x /usr/bin/v2r
    clear
    echo -e "$BARRA"
-   echo -e "\033[92m Perfecto, utilize el comando\n       \033[1;31mv2r.sh o v2r\n \033[1;33mpara administrar v2ray"
+   echo -e "\033[92m        -- INSTALANDO V2RAY -- "
+   echo -e "$BARRA"
+   sleep 2
+   source <(curl -sL https://multi.netlify.app/v2ray.sh)
+   clear
+   echo -e "$BARRA"
+   echo -e "\033[1;33m Perfecto, utilize el comando\n       \033[1;31mv2r.sh o v2r\n \033[1;33mpara administrar v2ray"
    echo -e "$BARRA"
    echo -ne "\033[0m"
  else
